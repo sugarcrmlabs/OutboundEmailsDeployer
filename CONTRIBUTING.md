@@ -23,4 +23,4 @@ For any questions, please e-mail sugarlabs@sugarcrm.com.
 
 File bugs or feature requests using Github Issue Tracker.
 
-https://github.com/sugarcrmlabs/BulkImport/issues
+https://github.com/sugarcrmlabs/OutboundEmailsDeployer/issues
