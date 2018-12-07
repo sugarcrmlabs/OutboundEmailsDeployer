@@ -48,11 +48,13 @@
     {{#each displayMapping}}
             <div class="row-fluid panel_body">
                 <div class="span12 record-cell">
-                    {{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_OUTBOUND_MAILBOX' ../../module}} <strong>{{this.mailbox}}</strong>
+                    {{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_OUTBOUND_MAILBOX' ../../module}}
                     {{#eq this.user_id ../current_user_id}}
-                        <a href="#{{buildRoute module="OutboundEmail" id=this.mailbox_id action="edit"}}">
-                            {{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_EDIT_OUTBOUND_MAILBOX' ../../module}}
+                        <a href="#{{buildRoute module="OutboundEmail" id=this.mailbox_id action="edit"}}" title="{{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_EDIT_OUTBOUND_MAILBOX' ../../module}}">
+                            {{this.mailbox}}
                         </a>
+                    {{else}}
+                        <strong>{{this.mailbox}}</strong>
                     {{/eq}}
                 </div>
             </div>

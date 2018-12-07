@@ -18,7 +18,7 @@ The Sugar instance must have the following configured prior to using the Outboun
 ## Installation Steps
 1. Clone this repository and enter the cloned directory.
 2. Retrieve the Sugar Module Packager dependency by running: `composer install`.
-3. Generate the installable .zip Sugar module with: `./vendor/bin/package 1.5`.
+3. Generate the installable .zip Sugar module with: `./vendor/bin/package 1.6`.
 4. Navigate to Admin > Module Loader and install the generated Outbound Emails Deployer package.
 5. Log out of the Sugar instance, clear your browser cache, and log back in to the Sugar instance once more.
 6. Navigate to the Admin panel and verify that you now see a new section called “Outbound Emails Deployer”.
