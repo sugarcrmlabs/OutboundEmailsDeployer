@@ -1,0 +1,93 @@
+{{#if outputMessages}}
+    <div class="record">
+        <div class="row-fluid panel_body">
+            <div class="span12 record-cell">
+                {{str "LBL_OUTBOUND_EMAILS_DEPLOYER_DEPLOY_OUTPUT" module}}:
+            </div>
+        </div>
+        {{#each outputMessages}}
+        <div class="row-fluid panel_body">
+            <div class="span12 record-cell">
+                {{this}}
+            </div>
+        </div>
+        {{/each}}
+    </div>
+{{/if}}
+<div class="record">
+    <div class="row-fluid panel_body">
+        <div class="span12 record-cell">
+            <select class="select2 mailbox-select2">
+                <option></option>
+                {{#eachOptions outboundMailboxes}}
+                    <option value="{{value.id}}">{{value.text}}</option>
+                {{/eachOptions}}
+            </select>
+            <select class="select2 team-select2" multiple>
+                <option></option>
+                {{#eachOptions teams}}
+                    <option value="{{value.id}}">{{value.text}}</option>
+                {{/eachOptions}}
+            </select>
+            <input type="button" class="btn add-team-on-mailbox" disabled value="{{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_DEPLOY_BUTTON_ADD' module}}">
+        </div>
+    </div>
+</div>
+{{#if displayMapping}}
+<div class="record">
+    <div class="row-fluid panel_body">
+        <div class="span12 record-cell">
+            <strong>{{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_MAPPING' module}}</strong>
+        </div>
+    </div>
+    <div class="row-fluid panel_body">
+        <div class="span12 record-cell">
+            &nbsp;
+        </div>
+    </div>
+    {{#each displayMapping}}
+            <div class="row-fluid panel_body">
+                <div class="span12 record-cell">
+                    {{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_OUTBOUND_MAILBOX' ../../module}} <strong>{{this.mailbox}}</strong>
+                    {{#eq this.user_id ../current_user_id}}
+                        <a href="#{{buildRoute module="OutboundEmail" id=this.mailbox_id action="edit"}}">
+                            {{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_EDIT_OUTBOUND_MAILBOX' ../../module}}
+                        </a>
+                    {{/eq}}
+                </div>
+            </div>
+            <div class="row-fluid panel_body">
+                <div class="span12 record-cell">
+                    &nbsp;
+                </div>
+            </div>
+            <div class="row-fluid panel_body">
+                <div class="span12 record-cell">
+                    <strong>{{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_TEAMS' ../../module}}</strong>
+                </div>
+            </div>
+            {{#if this.teams}}
+                {{#each this.teams}}
+                    <div class="row-fluid panel_body">
+                        <div class="span12 record-cell">
+                            &nbsp;
+                        </div>
+                    </div>
+                    <div class="row-fluid panel_body">
+                        <div class="span1 record-cell">
+                            {{this}}
+                        </div>
+                        <div class="span1 record-cell">
+                            <input type="button" class="btn team-remove" value="{{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_DEPLOY_BUTTON_REMOVE' ../../../module}}" data-mailbox="{{../../this.mailbox_id}}" data-team="{{@key}}" >
+                        </div>
+                        <div class="span10 record-cell">
+                            &nbsp;
+                        </div>
+                    </div>
+                {{/each}}
+            {{else}}
+                {{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_NO_TEAMS' ../../module}}
+            {{/if}}
+    {{/each}}
+{{/if}}
+</div>
