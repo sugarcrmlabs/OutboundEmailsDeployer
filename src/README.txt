@@ -3,7 +3,7 @@ The “Outbound Emails Deployer” solution is meant to provide an automated way
 Supported Platforms and Versions
 This package supports only the MySQL database type.  It is not supported for DB2, Oracle, Microsoft SQL Server, or any other database type.
  
-This package is only supported for Sugar versions 8.0.x (Sugar Cloud and On-Premise installations) and 8.2.x (Sugar Cloud installations).
+This package is only supported for Sugar versions 8.0.x (Sugar Cloud and On-Premise installations) and 8.2.x and 8.3.x (Sugar Cloud installations).
  
  
 Prerequisites
@@ -18,7 +18,7 @@ The Sugar instance must have the following configured prior to using the Outboun
  
 Installation Steps
 1.     Download the Outbound Emails Deployer package.
-2.     Navigate to Admin > Module Loader.
+2.     Navigate to Admin > Module Loader and install the package.
 3.     Log out of the Sugar instance, clear your browser cache, and log back in to the Sugar instance once more.
 4.     Navigate to the Admin panel and verify that you now see a new section called “Outbound Emails Deployer”.
 
