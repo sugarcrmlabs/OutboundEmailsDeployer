@@ -47,3 +47,12 @@ $sugar_config['outbound_mailbox_deployer']['check_inbound_mailbox'] = false;
 3. This package installs multiple application logic hooks to automate some of the deployment tasks.
 After the installation, make sure to delete the browser's cache of your Sugar system.
 4. The package installs a scheduler to automatically update users’ outbound mailboxes when a user is added to a team, and when a team is deleted.  By default, this scheduler runs every 30 minutes.
+
+## Contributing
+Everyone is welcome to contribute to this project! If you make a contribution, then the [Contributor Terms](CONTRIBUTOR_TERMS.pdf) apply to your submission.
+
+Please check out our [Contribution Guidelines](CONTRIBUTING.md) for helpful hints and tips that will make it easier for us to accept your pull requests.
+
+
+-----
+Copyright (c) 2018 SugarCRM Inc. Licensed by SugarCRM under the Apache 2.0 license.
