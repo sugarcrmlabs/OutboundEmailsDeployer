@@ -30,16 +30,22 @@ Deploying an Outbound Email Account to a Team
 4.     Once complete, click the “Add” button.  This will generate a prompt which states “This operations will deploy the mapped settings across all users, do you want to continue?”.  If you are ready to deploy this email account to the teams listed, click “Confirm”.  Otherwise, click “Cancel”.
 5.     If you have deployed the mapped settings, you will see a list of actions completed on the next page where a list of mailboxes and user deployments will be listed.
 
- 
+
 Changes to a Team
 If you make changes to the membership of a team, you have two options for deploying the applicable outbound mailbox changes to users:
 1.     Wait for the Outbound Mailbox Deployer scheduler to run and propagate the changes to the users.  By default, this scheduler runs every 30 minutes.
 2.     Immediately allow the changes to take effect by opening the Outbound Group Email Account Deployer and clicking the blue “Force Refresh of Outbound Mailboxes” button to propagate the changes to users. 
+
  
 Removing a Team from an Outbound Mailbox Configuration          
 To remove a team from the outbound mailbox mapping, navigate to Admin > Outbound Group Email Account Deployer, find the correct outbound mailbox in the list, and click the Remove button next to the team you want to remove from the mailbox.  After clicking this button, a pop-up will prompt you to deploy the mapped settings across all users.   If you are ready to deploy the changes, click “Confirm”.  Otherwise, click “Cancel”.
 
  
+Package Removal/Uninstallation Steps
+If you decide that you want to remove the Outbound Group Email Account Deployer package and configuration in its entirety, you may also want to remove the email account mapping generated through the deployer.  To remove all email account mapping, navigate to Admin > Outbound Group Email Account Deployer and click the Remove button next to each team listed on the page. When complete, the deployer page should no longer list any email accounts mapped to teams.
+Afterwards, you can navigate to Admin > Module Loader and uninstall the package.
+
+
 Important Notes
 1.     Optionally, you can set the following Sugar configuration option, via config_override.php, to allow any outbound mailbox to appear in the deployer dropdown list, even if the mailbox is not first configured as an Inbound Email Account.
  
