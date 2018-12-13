@@ -1,7 +1,7 @@
 <?php
 
-$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_HEADER'] = 'Outbound Emails Deployer';
-$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_DESCRIPTION'] = 'Outbound Emails Deployer for Inbound Cases Mailboxes';
+$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_HEADER'] = 'Outbound Group Email Account Deployer';
+$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_DESCRIPTION'] = 'Outbound Group Email Account Deployer for Inbound Cases Mailboxes';
 
 $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_WAIT'] = 'Please Wait...';
 $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_DEPLOY'] = 'Force Refresh of Outbound Mailboxes';

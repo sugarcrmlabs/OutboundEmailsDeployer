@@ -23,7 +23,7 @@ class OutboundEmailsDeployerJob implements \RunnableSchedulerJob
         $oed = new OutboundEmailsDeployer();
         $output = $oed->deployCurrentMapping();
 
-        $messages = 'Outbound Emails Deployer Job executed successfully in ' . round(microtime(true) - $start_time, 2) . ' seconds' . PHP_EOL;
+        $messages = 'Outbound Group Email Account Deployer Job executed successfully in ' . round(microtime(true) - $start_time, 2) . ' seconds' . PHP_EOL;
         if (!empty($output['errors'])) {
             $messages .= implode(PHP_EOL, $output['errors']);
         }

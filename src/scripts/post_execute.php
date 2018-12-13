@@ -9,7 +9,7 @@ $repair->repairAndClearAll(array('clearAll'), array($mod_strings['LBL_ALL_MODULE
 
 // enable scheduler
 $class = 'class::OutboundEmailsDeployerJob';
-$name = 'Outbound Emails Deployer Job';
+$name = 'Outbound Group Email Account Deployer Job';
 $interval = '*/30::*::*::*::*';
 $status = 'Active';
 
