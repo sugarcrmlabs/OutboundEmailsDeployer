@@ -1,4 +1,4 @@
-# OutboundEmailsDeployer
+# Outbound Group Email Account Deployer
 The “Outbound Group Email Account Deployer” solution is meant to provide an automated way to deploy email accounts to large quantities of users at one time for the purpose of sending outbound emails.  This solution is installed through a Module Loadable package, by uploading and installing the .zip package file within Admin > Module Loader.  Note that to use this deployer, you must have at least one inbound group mailbox configured, and at least one user must already have this same inbound email account also configured as an outbound email account via the Emails module.
  
 ## Supported Platforms and Versions
