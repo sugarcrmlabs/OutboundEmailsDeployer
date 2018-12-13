@@ -39,7 +39,7 @@ If you make changes to the membership of a team, you have two options for deploy
 To remove a team from the outbound mailbox mapping, navigate to Admin > Outbound Group Email Account Deployer, find the correct outbound mailbox in the list, and click the Remove button next to the team you want to remove from the mailbox.  After clicking this button, a pop-up will prompt you to deploy the mapped settings across all users.   If you are ready to deploy the changes, click “Confirm”.  Otherwise, click “Cancel”.
 
 ## Package Removal/Uninstallation Steps
-If you decide that you want to remove the Outbound Group Email Account Deployer package and configuration in its entirety, you may also want to remove the email account mapping generated through the deployer.  To remove all email account mapping, navigate to Admin > Outbound Group Email Account Deployer and click the Remove button next to each team listed on the page. When complete, the deployer page should no longer list any email accounts mapped to teams.
+If you decide that you want to remove the Outbound Group Email Account Deployer package and configuration in its entirety, you may also want to remove the email account mapping generated through the deployer.  To remove all email account mapping, navigate to Admin > Outbound Group Email Account Deployer and click the Remove button next to each team listed on the page. When complete, the deployer page should no longer list any email accounts mapped to teams.<br/>
 Afterwards, you can navigate to Admin > Module Loader and uninstall the package.
  
 ## Important Notes
