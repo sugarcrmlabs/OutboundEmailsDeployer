@@ -10,22 +10,22 @@ This package is only supported for Sugar versions 8.0.x (Sugar Cloud and On-Prem
 The Sugar instance must have the following configured prior to using the Outbound Group Email Account Deployer:
 1. Valid system email configuration in Admin > System Email Settings.
 2. One or more group email accounts within Admin > Inbound Email.
-3. At least one user with each of the mailboxes in #2 above already configured as an outbound email account in Emails > Email Settings. (for example, if your inbound email account is support@examplecompany.com, then you must have at least one user in the instance who already has valid SMTP settings configured for support@examplecompany.com in Emails > Email Settings)
+3. At least one user with each of the mailboxes in #2 above already configured as an outbound email account in Emails > Email Settings. (for example, if your inbound email account is `support@examplecompany.com`, then you must have at least one user in the instance who already has valid SMTP settings configured for `support@examplecompany.com` in Emails > Email Settings)
 4. Teams created, with users assigned to the teams, based on your requirements for deploying email accounts.
-5. Valid, working email credentials configured in each user’s profile with the domain matching the same domain used in Admin > Inbound Email (for example, if your inbound email account is support@examplecompany.com, the users’ email accounts must also end in examplecompany.com)
+5. Valid, working email credentials configured in each user’s profile with the domain matching the same domain used in Admin > Inbound Email (for example, if your inbound email account is `support@examplecompany.com`, the users’ email accounts must also end in `examplecompany.com`)
 6. Cron must be enabled.
 
 ### Example scenario to fulfill the prerequisites:
 
-* Admin > System Email Settings has a valid email account called "system@examplecompany.com" configured.
-* Admin > Inbound Email has a valid email account called "support@examplecompany.com" configured.
-* Lisa, an Administrator user in the instance, has the "support@examplecompany.com" email account already configured for herself in Emails > Email Settings as a new outbound email account.
-* Lisa configured her own personal email account on her user profile or Email Settings with her own credentials for "lisa@examplecompany.com".
+* Admin > System Email Settings has a valid email account called `system@examplecompany.com` configured.
+* Admin > Inbound Email has a valid email account called `support@examplecompany.com` configured.
+* Lisa, an Administrator user in the instance, has the `support@examplecompany.com` email account already configured for herself in Emails > Email Settings as a new outbound email account.
+* Lisa configured her own personal email account on her user profile or Email Settings with her own credentials for `lisa@examplecompany.com`.
 * Lisa created a Support team, which contains all customer support employees.
-* All customer support employees in the Support team have configured their personal email accounts in their user profiles or Email Settings. For example, John, a regular user of the system, member of the Support team, has opened his user profile and configured his "john@examplecompany.com" email account with his own credentials.
+* All customer support employees in the Support team have configured their personal email accounts in their user profiles or Email Settings. For example, John, a regular user of the system, member of the Support team, has opened his user profile and configured his `john@examplecompany.com` email account with his own credentials.
 * Cron has been enabled on the server and instance.
 
-With this example scenario, the Outbound Group Email Account Deployer will use the "support@examplecompany.com" email account that Lisa has configured for herself as the "parent" configuration for deployment.  When Lisa deploys the email account to the Support team, the configuration that Lisa set for "support@examplecompany.com" in Emails > Email Settings for outbound email will propagate to each of the Support team users, including John.  The Outbound Group Email Account Deployer will help keep the account in sync for all the Support team users, for every change that Lisa will complete on the initial "parent" email account in the future.
+With this example scenario, the Outbound Group Email Account Deployer will use the `support@examplecompany.com` email account that Lisa has configured for herself as the "parent" configuration for deployment.  When Lisa deploys the email account to the Support team, the configuration that Lisa set for `support@examplecompany.com` in Emails > Email Settings for outbound email will propagate to each of the Support team users, including John.  The Outbound Group Email Account Deployer will help keep the account in sync for all the Support team users, for every change that Lisa will complete on the initial "parent" email account in the future.
 
 ## Installation Steps
 1. Clone this repository and enter the cloned directory.
