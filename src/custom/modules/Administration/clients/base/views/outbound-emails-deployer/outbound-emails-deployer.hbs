@@ -88,8 +88,17 @@
                     </div>
                 {{/each}}
             {{else}}
-                {{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_NO_TEAMS' ../../module}}
+                <div class="row-fluid panel_body">
+                    <div class="span12 record-cell">
+                        {{str 'LBL_OUTBOUND_EMAILS_DEPLOYER_NO_TEAMS' ../../module}}
+                    </div>
+                </div>
             {{/if}}
+            <div class="row-fluid panel_body">
+                <div class="span12 record-cell">
+                    &nbsp;
+                </div>
+            </div>
     {{/each}}
 {{/if}}
 </div>
