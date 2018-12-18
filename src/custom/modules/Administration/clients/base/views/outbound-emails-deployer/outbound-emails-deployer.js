@@ -39,8 +39,25 @@
         var url = app.api.buildURL('Administration/OutboundEmailsDeployer/deployMailboxes');
         app.api.call('create', url, {}, {
             success: function (response) {
-                self.outputMessages = response.completed;
+
+                var temp = [];
+
+                temp = temp.concat(temp, response.deleted);
+                temp = temp.concat(temp, response.updated);
+                temp = temp.concat(temp, response.no_changes);
+
+                self.outputMessages = temp;
                 self.render();
+
+                if (response.uiwarning) {
+                    app.alert.dismiss('outbound-emails-deployer-warning');
+                    app.alert.show('outbound-emails-deployer-warning', {
+                        level: 'warning',
+                        messages: response.uiwarning,
+                        autoClose: true,
+                        autoCloseDelay: 15000
+                    });
+                }
             },
             error: function() {
                 self.context.trigger('outbound-emails-deployer:response');

@@ -23,9 +23,16 @@ class CustomOutboundEmailApi extends OutboundEmailApi
         $returnValues = parent::deleteRecord($api, $args);
 
         // trigger mailboxes rebuild
+        global $current_user;
         $oed = new OutboundEmailsDeployer();
-        $oed->setAllowNonAdmin(true);
-        $oed->deployCurrentMapping();
+
+        global $current_user;
+        $user_id = false;
+        if ($current_user->isAdmin()) {
+            $user_id = $current_user->id;
+        }
+
+        $oed->scheduleForBackgroundProcessing($user_id);
 
         return $returnValues;
     }

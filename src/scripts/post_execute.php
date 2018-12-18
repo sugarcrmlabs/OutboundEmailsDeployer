@@ -14,17 +14,19 @@ $interval = '*/30::*::*::*::*';
 $status = 'Active';
 
 $sugarQuery = new SugarQuery();
-$sugarQuery->from(BeanFactory::getBean('Schedulers'));
+$sugarQuery->from(BeanFactory::newBean('Schedulers'));
 $sugarQuery->select(array('id'));
 $sugarQuery->where()->equals('job', $class);
 $sugarQuery->limit(1);
 $record = $sugarQuery->execute();
 
 if (!empty($record) && !empty($record['0'])) {
-    $scheduler = BeanFactory::getBean('Schedulers', $record['0']['id']);
+    $scheduler = BeanFactory::retrieveBean('Schedulers', $record['0']['id']);
 } else {
     $scheduler = BeanFactory::newBean('Schedulers');
 }
+
+global $current_user;
 
 $scheduler->name = $name;
 $scheduler->job = $class;

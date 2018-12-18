@@ -6,10 +6,17 @@ class afterRelationshipDeleteTeams
 {
     public function callAfterRelationshipDelete($b, $e, $a)
     {
-        if ($a['module'] == 'Teams' && $a['related_module'] == 'Users') {
-            // TODO optimise execution only when needed
+        if ($a['module'] === 'Teams' && $a['related_module'] === 'Users') {
             $oed = new OutboundEmailsDeployer();
-            $oed->deployCurrentMapping();
+
+            // background only
+            global $current_user;
+            $user_id = false;
+            if ($current_user->isAdmin()) {
+                $user_id = $current_user->id;
+            }
+
+            $oed->scheduleForBackgroundProcessing($user_id);
         }
     }
 }
