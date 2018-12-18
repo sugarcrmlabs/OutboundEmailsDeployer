@@ -4,8 +4,9 @@
 // 2018-11-09
 
 namespace Sugarcrm\Sugarcrm\custom\OutboundEmailsDeployer;
+use Sugarcrm\Sugarcrm\Security\Crypto\Blowfish;
 
-class OutboundEmailsDeployer
+class OutboundEmailsDeployer extends \OutboundEmail
 {
     protected $fields = [
         'type',
@@ -18,6 +19,10 @@ class OutboundEmailsDeployer
         'mail_smtppass',
         'mail_smtpauth_req',
         'mail_smtpssl',
+    ];
+
+    protected $fieldsToDecode = [
+        'mail_smtppass'
     ];
 
     protected $allowNonAdmin = false;
@@ -39,6 +44,62 @@ class OutboundEmailsDeployer
     public function setAllowNonAdmin($state = true)
     {
         $this->allowNonAdmin = $state;
+    }
+
+    protected function getUserNameFromId($id)
+    {
+        $this->enforcePermissions();
+
+        // this overrides visibility and sugar query and beans, completed for performance reasons only
+
+        $builder = \DBManagerFactory::getInstance()->getConnection()->createQueryBuilder();
+        $builder->select(array('id', 'user_name'))->from('users');
+        $builder->where('id = ' . $builder->createPositionalParameter($id));
+        $res = $builder->execute();
+
+        if ($row = $res->fetch()) {
+            return $row;
+        }
+
+        return array();
+    }
+
+    protected function retrieveMailboxFromDB($mailboxId)
+    {
+        $this->enforcePermissions();
+
+        // this overrides visibility and sugar query and beans, completed for performance reasons only
+
+        $fields = array_merge(array('id'), $this->fields);
+
+        $builder = \DBManagerFactory::getInstance()->getConnection()->createQueryBuilder();
+        $builder->select($fields)->from('outbound_email');
+        $builder->where('id = ' . $builder->createPositionalParameter($mailboxId));
+        $res = $builder->execute();
+
+        if ($row = $res->fetch()) {
+            return (object) $row;
+        }
+
+        return (object) array();
+    }
+
+    public function countMailboxCopies($mailboxId)
+    {
+        $this->enforcePermissions();
+
+        // this overrides visibility and sugar query and beans, completed for performance reasons only
+
+        $builder = \DBManagerFactory::getInstance()->getConnection()->createQueryBuilder();
+        $builder->select(array('id'))->from('outbound_email');
+        $builder->where('parentmailbox_id_c = ' . $builder->createPositionalParameter($mailboxId));
+        $res = $builder->execute();
+        return $res->rowCount();
+    }
+
+    public function getUiRecordLimit()
+    {
+        return (int)\SugarConfig::getInstance()->get('outbound_mailbox_deployer.ui_record_limit', 100);
     }
 
     protected function getActiveInboundMailboxes()
@@ -95,19 +156,19 @@ class OutboundEmailsDeployer
         $builder->select(array('id', 'name', 'user_id', 'email_address_id', 'mail_smtpuser'))->from('outbound_email');
         $builder->where('type = ' . $builder->createPositionalParameter('user'));
         $builder->andWhere('deleted = ' . $builder->createPositionalParameter(0));
-        $builder->andWhere($builder->expr()->isNull('parentmailbox_id'));
+        $builder->andWhere($builder->expr()->isNull('parentmailbox_id_c'));
         $res = $builder->execute();
 
         while ($row = $res->fetch()) {
             if (!empty($row['email_address_id'])) {
-                $emailAddress = \BeanFactory::getBean('EmailAddresses', $row['email_address_id'], $beanOptions);
-                if (!empty($emailAddress->id)) {
+                $emailAddress = \BeanFactory::retrieveBean('EmailAddresses', $row['email_address_id'], $beanOptions);
+                if (!empty($emailAddress)) {
 
                     // retrieve user
-                    $user = \BeanFactory::getBean('Users', $row['user_id']);
+                    $user = $this->getUserNameFromId($row['user_id']);
                     $user_string = '';
-                    if (!empty($user->id)) {
-                        $user_string = '(' . $user->user_name . ') - ';
+                    if (!empty($user)) {
+                        $user_string = '(' . $user['user_name'] . ') - ';
                     }
 
                     // if we need to check for inbound mailbox
@@ -148,12 +209,10 @@ class OutboundEmailsDeployer
         $outboundEmails = $this->getOutboundEmails();
         if (!empty($outboundEmails) && !empty($outboundEmails['values'])) {
             foreach ($outboundEmails['values'] as $outboundMailboxId => $outboundEmailValue) {
-                $oe = \BeanFactory::getBean('OutboundEmail', $outboundMailboxId, $beanOptions);
-                if (!empty($oe->id)) {
-                    $emailAddress = \BeanFactory::getBean('EmailAddresses', $oe->email_address_id, $beanOptions);
-
+                $oe = \BeanFactory::retrieveBean('OutboundEmail', $outboundMailboxId, $beanOptions);
+                if (!empty($oe)) {
                     // populate email
-                    $return[$oe->id]['email'] = $emailAddress->email_address;
+                    $return[$oe->id]['email'] = $oe->email_address;
                     $return[$oe->id]['mailbox'] = $outboundEmailValue;
                     $return[$oe->id]['user_id'] = $oe->user_id;
                     $return[$oe->id]['mailbox_id'] = $oe->id;
@@ -163,14 +222,14 @@ class OutboundEmailsDeployer
                     $teams = $oe->teams_outboundemail_1->get();
                     if (!empty($teams)) {
                         foreach ($teams as $teamId) {
-                            $team = \BeanFactory::getBean('Teams', $teamId, $beanOptions);
-                            if (!empty($team->id)) {
+                            $team = \BeanFactory::retrieveBean('Teams', $teamId, $beanOptions);
+                            if (!empty($team)) {
                             $return[$oe->id]['teams'][$teamId] = $team->name;
                             } else {
                                 // attempt to soft delete the non-deleted orphan relationship record
                                 // retrieve deleted Team if possible
-                                $team = \BeanFactory::getBean('Teams', $teamId, $beanOptions, false); 
-                                if (!empty($team->id)) {
+                                $team = \BeanFactory::retrieveBean('Teams', $teamId, $beanOptions, false);
+                                if (!empty($team)) {
                                     // calling a relationship delete to flush the record
                                     $oe->teams_outboundemail_1->delete($oe->id, $team);
                                 }
@@ -204,8 +263,8 @@ class OutboundEmailsDeployer
         $beanOptions = $this->enforcePermissions();
 
         if (!empty($mailboxId) && !empty($teams)) {
-            $oe = \BeanFactory::getBean('OutboundEmail', $mailboxId, $beanOptions);
-            if (!empty($oe->id)) {
+            $oe = \BeanFactory::retrieveBean('OutboundEmail', $mailboxId, $beanOptions);
+            if (!empty($oe)) {
                 $oe->load_relationship('teams_outboundemail_1');
                 foreach ($teams as $teamId) {
                     $oe->teams_outboundemail_1->add($teamId);
@@ -222,8 +281,8 @@ class OutboundEmailsDeployer
         $beanOptions = $this->enforcePermissions();
 
         if (!empty($mailboxId) && !empty($teamId)) {
-            $oe = \BeanFactory::getBean('OutboundEmail', $mailboxId, $beanOptions);
-            if (!empty($oe->id)) {
+            $oe = \BeanFactory::retrieveBean('OutboundEmail', $mailboxId, $beanOptions);
+            if (!empty($oe)) {
                 $oe->load_relationship('teams_outboundemail_1');
                 $oe->teams_outboundemail_1->delete($mailboxId, $teamId);
                 return true;
@@ -244,7 +303,7 @@ class OutboundEmailsDeployer
             $builder->select(array('id'))->from('outbound_email');
             $builder->where('user_id = ' . $builder->createPositionalParameter($userId));
             $builder->andWhere('type = ' . $builder->createPositionalParameter('user'));
-            $builder->andWhere('parentmailbox_id = ' . $builder->createPositionalParameter($ouboundMailboxId));
+            $builder->andWhere('parentmailbox_id_c = ' . $builder->createPositionalParameter($ouboundMailboxId));
             $builder->andWhere('deleted = ' . $builder->createPositionalParameter(0));
             $res = $builder->execute();
             
@@ -268,9 +327,9 @@ class OutboundEmailsDeployer
         $return = [];
 
         $builder = \DBManagerFactory::getInstance()->getConnection()->createQueryBuilder();
-        $builder->select(array('id', 'email_address_id', 'user_id', 'parentmailbox_id'))->from('outbound_email');
+        $builder->select(array('id', 'email_address_id', 'user_id', 'parentmailbox_id_c'))->from('outbound_email');
         $builder->where('type = ' . $builder->createPositionalParameter('user'));
-        $builder->andWhere($builder->expr()->isNotNull('parentmailbox_id'));
+        $builder->andWhere($builder->expr()->isNotNull('parentmailbox_id_c'));
         $builder->andWhere('deleted = ' . $builder->createPositionalParameter(0));
         $res = $builder->execute();
         
@@ -296,15 +355,15 @@ class OutboundEmailsDeployer
                 // check if the user is part of a team on the mapping for this outbound mailbox (parent mailbox)
                 $found = false;
 
-                if (!empty($copy['parentmailbox_id']) && !empty($copy['user_id'])) {
-                    if (!empty($mapping[$copy['parentmailbox_id']]) && !empty($mapping[$copy['parentmailbox_id']]['teams'])) {
-                        foreach ($mapping[$copy['parentmailbox_id']]['teams'] as $teamId => $teamName) {
-                            $team = \BeanFactory::getBean('Teams', $teamId, $beanOptions);
-                            if (!empty($team->id)) {
+                if (!empty($copy['parentmailbox_id_c']) && !empty($copy['user_id'])) {
+                    if (!empty($mapping[$copy['parentmailbox_id_c']]) && !empty($mapping[$copy['parentmailbox_id_c']]['teams'])) {
+                        foreach ($mapping[$copy['parentmailbox_id_c']]['teams'] as $teamId => $teamName) {
+                            $team = \BeanFactory::retrieveBean('Teams', $teamId, $beanOptions);
+                            if (!empty($team)) {
                                 $team->load_relationship('users');
                                 $users = $team->users->get();
                                 if (in_array($copy['user_id'], $users)) {
-                                    $GLOBALS['log']->info(__METHOD__ . ' the user id ' . $copy['user_id'] . ' is part of the team ' . $teamName . ', mapped to the outbound mailbox id ' . $copy['parentmailbox_id'] . '. Keeping record');
+                                    $GLOBALS['log']->info(__METHOD__ . ' the user id ' . $copy['user_id'] . ' is part of the team ' . $teamName . ', mapped to the outbound mailbox id ' . $copy['parentmailbox_id_c'] . '. Keeping record');
                                     $found = true;
                                 }
                             }
@@ -314,23 +373,24 @@ class OutboundEmailsDeployer
                 }
 
                 if (!$found) {
-                    $emailAddress = \BeanFactory::getBean('EmailAddresses', $copy['email_address_id'], $beanOptions);
+                    $oe = \BeanFactory::retrieveBean('OutboundEmail', $copy['id'], $beanOptions);
 
-                    $user = \BeanFactory::getBean('Users', $copy['user_id'], $beanOptions);
+                    $user = $this->getUserNameFromId($copy['user_id']);
 
-                    $GLOBALS['log']->info(__METHOD__ . ' the user ' . $user->user_name . ' is not part of a team mapped to the outbound mailbox id ' . 
-                        $copy['parentmailbox_id']. ' for the email address ' . $emailAddress->email_address  . '. Deleting record id ' . $copy['id']);
+                    if (!empty($oe)) {
+                        $GLOBALS['log']->info(__METHOD__ . ' the user ' . $user['user_name'] . ' is not part of a team mapped to the outbound mailbox id ' .
+                            $copy['parentmailbox_id_c']. ' for the email address ' . $oe->email_address  . '. Deleting record id ' . $copy['id']);
 
-                    $oe = \BeanFactory::getBean('OutboundEmail', $copy['id'], $beanOptions);
-                    $oe->mark_deleted($copy['id']);
-   
-                    $message = sprintf(
-                        translate('LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_SUCCESSFUL_DELETE', 'Administration'),
-                        $emailAddress->email_address,
-                        $user->user_name
-                    );
+                        $oe->mark_deleted($copy['id']);
 
-                    $return['completed'][] = $message;
+                        $message = sprintf(
+                            translate('LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_SUCCESSFUL_DELETE', 'Administration'),
+                            $oe->email_address,
+                            $user['user_name']
+                        );
+
+                        $return['completed'][] = $message;
+                    }
                 }
             }
         }
@@ -338,14 +398,19 @@ class OutboundEmailsDeployer
         return $return;
     }
 
-    protected function areOutboundMailboxesInSync($originalMailbox, $usersMailbox)
+    protected function areOutboundMailboxesInSync($originalMailbox, $usersMailboxDB)
     {
         $this->enforcePermissions();
 
-        if (!empty($originalMailbox->id) && !empty($usersMailbox->id)) {
+        if (!empty($originalMailbox->id) && !empty($usersMailboxDB->id)) {
+            // decode the pass for comparison, since we now compare against the database values
+            foreach ($this->fieldsToDecode as $fieldToDecode) {
+                $usersMailboxDB->$fieldToDecode = Blowfish::decode(Blowfish::getKey($originalMailbox->module_key), $usersMailboxDB->$fieldToDecode);
+            }
+
             foreach ($this->fields as $field) {
                 // if the strings are not identical
-                if (strcmp($originalMailbox->$field, $usersMailbox->$field) !== 0) {
+                if (strcmp($originalMailbox->$field, $usersMailboxDB->$field) !== 0) {
                     $GLOBALS['log']->info(__METHOD__ . ' found non-identical field for the mailboxes');
                     return false;
                 }
@@ -364,108 +429,138 @@ class OutboundEmailsDeployer
             // retrieve user's mailboxes, replica of the current one
             $userMailbox = false;
             $usersMailboxId = $this->getUserCopiedOutboundEmailId($userId, $originalMailbox->id);
-            if (!empty($usersMailboxId)) {
-                // here we need to force the cache to be flushed, to make sure the mailboxes are identical
-                $beanOptionsMailbox = array_merge($beanOptions, array('use_cache' => false));
-                $userMailbox = \BeanFactory::getBean('OutboundEmail', $usersMailboxId, $beanOptionsMailbox);
-            }
 
-            $user = \BeanFactory::getBean('Users', $userId, $beanOptions);
+            $user = $this->getUserNameFromId($userId);
 
-            if (!empty($user) && !empty($user->id)) {
+            if (!empty($user)) {
 
-                $emailAddress = \BeanFactory::getBean('EmailAddresses', $originalMailbox->email_address_id, $beanOptions);
-
-                if (!empty($emailAddress->id)) {
-                    // update or create
-                    if (!empty($userMailbox) && !empty($userMailbox->id)) {
-                        if (!$this->areOutboundMailboxesInSync($originalMailbox, $userMailbox)) {
-                            // update only if not already the same
-                            $needsSave = true;
-                            $oe = \BeanFactory::getBean('OutboundEmail', $userMailbox->id, $beanOptions);
-                            $GLOBALS['log']->info(__METHOD__ . ' updating existing mailbox for the email address ' . $emailAddress->email_address . ' and user id ' . $userId);
-                        } 
-                    } else {
-                        // create
+                if (!empty($usersMailboxId)) {
+                    $userMailboxDB = $this->retrieveMailboxFromDB($usersMailboxId);
+                }
+                // update or create
+                if (!empty($userMailboxDB)) {
+                    if (!$this->areOutboundMailboxesInSync($originalMailbox, $userMailboxDB)) {
+                        // update only if not already the same
                         $needsSave = true;
-                        $oe = \BeanFactory::newBean('OutboundEmail');
-                        if (!empty($beanOptions)) {
-                            foreach ($beanOptions as $oKey => $oValue) {
-                                $oe->$oKey = $oValue;
-                            }
-                        }
-                        $GLOBALS['log']->info(__METHOD__ . ' creating new outbound mailbox for the email address id ' . $emailAddress->email_address . ' and user id ' . $userId);
+                        $oe = \BeanFactory::retrieveBean('OutboundEmail', $userMailboxDB->id, $beanOptions);
+                        $GLOBALS['log']->info(__METHOD__ . ' updating existing mailbox for the email address ' . $originalMailbox->email_address . ' and user id ' . $userId);
                     }
+                } else {
+                    // create
+                    $needsSave = true;
+                    $oe = \BeanFactory::newBean('OutboundEmail');
+                    if (!empty($beanOptions)) {
+                        foreach ($beanOptions as $oKey => $oValue) {
+                            $oe->$oKey = $oValue;
+                        }
+                    }
+                    $GLOBALS['log']->info(__METHOD__ . ' creating new outbound mailbox for the email address id ' . $originalMailbox->email_address . ' and user id ' . $userId);
                 }
 
                 if ($needsSave) {
                     foreach ($this->fields as $field) {
                         $oe->$field = $originalMailbox->$field;
                     }
-                    $oe->name = $user->user_name . ' - ' . $emailAddress->email_address;
-                    $oe->user_id = $user->id;
+                    $oe->name = $user['user_name'] . ' - ' . $originalMailbox->email_address;
+                    $oe->user_id = $user['id'];
                     // new field to track the parent
-                    $oe->parentmailbox_id = $originalMailbox->id;
-                    // attribute to detect on after save hook
-                    $oe->saveFromDeployer = true;
+                    $oe->parentmailbox_id_c = $originalMailbox->id;
+                    // operation to detect on after save hook
+                    $opFlag = \SugarBean::enterOperation('outbound_emails_deployer_save');
                     $oe->save(false);
+                    \SugarBean::leaveOperation('outbound_emails_deployer_save', $opFlag);
                 }
             }
         }
         return $needsSave;
     }
 
-    public function deployCurrentMapping()
+    public function deployCurrentMapping($uiDriven = false, $srcMailboxID = false)
     {
         $beanOptions = $this->enforcePermissions();
 
+        $uiRecordLimit = $this->getUiRecordLimit();
+        $processedRecords = 0;
+
         $return = [];
+        $return['uiwarning'] = '';
         $return['errors'] = [];
-        $return['completed'] = [];
+        $return['deleted'] = [];
+        $return['no_changes'] = [];
+        $return['updated'] = [];
+
         $mapping = $this->getFullMapping();
 
         // remove all orphans to re-align the mailboxes
         $removals = $this->removeOrphanMailboxes($mapping);
         if (!empty($removals['completed'])) {
-            $return['completed'] = $removals['completed'];
+            $return['deleted'] = $removals['completed'];
         }
 
         if (!empty($mapping)) {
             foreach ($mapping as $outboundMailboxId => $emailMapping) {
-                if (!empty($emailMapping['teams'])) {
-    
-                    // get original outbound email mailbox
-                    $originalMailbox = \BeanFactory::getBean('OutboundEmail', $outboundMailboxId, $beanOptions);
-                    $emailAddress = \BeanFactory::getBean('EmailAddresses', $originalMailbox->email_address_id, $beanOptions);
-                    if (!empty($originalMailbox->id) && !empty($emailAddress->id)) {
-                        foreach ($emailMapping['teams'] as $teamId => $teamName) {
-                            // need to retrieve users members of the team and then their outbound mailboxes to compare them
-                            $team = \BeanFactory::getBean('Teams', $teamId, $beanOptions);
-                            if (!empty($team->id)) {
-                                $team->load_relationship('users');
-                                $users = $team->users->get();
-                                if (!empty($users)) {
-                                    foreach ($users as $userId) {
-                                        // skip for current user
-                                        if ($userId != $originalMailbox->user_id) {
-                                            $user = \BeanFactory::getBean('Users', $userId, $beanOptions);
-                                            if ($this->copyOutboundMailboxToUser($originalMailbox, $userId)) {
-                                                // the record was modified
-                                                $message = sprintf(
-                                                    translate('LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_SUCCESSFUL_CHANGE', 'Administration'),
-                                                    $emailAddress->email_address,
-                                                    $user->user_name
-                                                );
-                                            } else {
-                                                // the record was the same
-                                                $message = sprintf(
-                                                    translate('LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_NO_CHANGE', 'Administration'),
-                                                    $emailAddress->email_address,
-                                                    $user->user_name
-                                                );
+
+                // only process this mailbox, either if all mailboxes have to be processed, or if this specific mailbox has to be processed
+                if ($srcMailboxID === false || $srcMailboxID === $outboundMailboxId) {
+
+                    if (!empty($emailMapping['teams'])) {
+
+                        // get original outbound email mailbox
+                        $originalMailbox = \BeanFactory::retrieveBean('OutboundEmail', $outboundMailboxId, $beanOptions);
+                        if (!empty($originalMailbox)) {
+                            foreach ($emailMapping['teams'] as $teamId => $teamName) {
+                                // need to retrieve users members of the team and then their outbound mailboxes to compare them
+                                $team = \BeanFactory::retrieveBean('Teams', $teamId, $beanOptions);
+                                if (!empty($team->id)) {
+                                    $team->load_relationship('users');
+                                    $users = $team->users->get();
+                                    if (!empty($users)) {
+                                        foreach ($users as $userId) {
+                                            // skip for current user
+                                            if ($userId != $originalMailbox->user_id) {
+                                                $user = $this->getUserNameFromId($userId);
+                                                if ($this->copyOutboundMailboxToUser($originalMailbox, $userId)) {
+                                                    // the record was modified
+                                                    $message = sprintf(
+                                                        translate('LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_SUCCESSFUL_CHANGE', 'Administration'),
+                                                        $originalMailbox->email_address,
+                                                        $user['user_name']
+                                                    );
+                                                    $return['updated'][] = $message;
+                                                } else {
+                                                    // the record was the same
+                                                    $message = sprintf(
+                                                        translate('LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_NO_CHANGE', 'Administration'),
+                                                        $originalMailbox->email_address,
+                                                        $user['user_name']
+                                                    );
+                                                    $return['no_changes'][] = $message;
+                                                }
+                                                $GLOBALS['log']->info(__METHOD__ . ' ' . $message);
+                                                $processedRecords++;
+
+                                                // check if we have to go to the background after few records
+                                                if ($uiDriven) {
+                                                    if ($processedRecords >= $uiRecordLimit) {
+                                                        // queue the process and send a message out to the user
+                                                        $message = sprintf(
+                                                            translate('LBL_OUTBOUND_EMAILS_DEPLOYER_SUMMARY_MESSAGE_TOO_MANY_RECORDS', 'Administration'),
+                                                            $processedRecords
+                                                        );
+                                                        $return['uiwarning'] = $message;
+                                                        $GLOBALS['log']->info(__METHOD__ . ' ' . $message);
+
+                                                        global $current_user;
+
+                                                        $this->scheduleForBackgroundProcessing($current_user->id);
+
+                                                        // reset allow admin if set
+                                                        $this->setAllowNonAdmin(false);
+
+                                                        return $return;
+                                                    }
+                                                }
                                             }
-                                            $return['completed'][] = $message;
-                                            $GLOBALS['log']->info(__METHOD__ . ' ' . $message);
                                         }
                                     }
                                 }
@@ -480,5 +575,27 @@ class OutboundEmailsDeployer
         $this->setAllowNonAdmin(false);
     
         return $return;
+    }
+
+    public function scheduleForBackgroundProcessing($user_id = false)
+    {
+        $this->enforcePermissions();
+
+        global $current_user;
+
+        $job = new \SchedulersJob();
+        if (!empty($user_id)) {
+            $job->data = json_encode(
+                [
+                    'notify_user_id' => $user_id
+                ]
+            );
+        }
+        $job->name = 'Processing Outbound Emails Deployment';
+        $job->target = 'class::OutboundEmailsDeployerJob';
+        $job->assigned_user_id = $current_user->id;
+
+        $jq = new \SugarJobQueue();
+        $jobid = $jq->submitJob($job);
     }
 }

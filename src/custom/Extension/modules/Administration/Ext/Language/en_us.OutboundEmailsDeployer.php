@@ -18,6 +18,16 @@ $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_NO_TEAMS'] = 'No Teams are currently 
 
 $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_ERROR_INBOUND_MAILBOX_MISSING'] = 'There are no inbound email mailboxes currently configured. Please configure at least one inbound email mailbox';
 $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_ERROR_OUTBOUND_MAILBOX_MISSING'] = 'There are no outbound mailboxes setup that match Inbound Emails for Cases creation';
+
 $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_SUCCESSFUL_CHANGE'] = 'Changes completed successfully for outbound mailbox "%s" and user "%s"';
-$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_NO_CHANGE'] = 'No changes completed for outbound mailbox "%s" and user "%s"';
+$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_NO_CHANGE'] = 'No changes required for existing outbound mailbox "%s" and user "%s"';
 $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_SUCCESSFUL_DELETE'] = 'Deleted outbound mailbox "%s" for user "%s"';
+
+$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_SUMMARY_MESSAGE_SUCCESSFUL_CHANGE'] = 'Changes completed successfully for %s outbound mailboxes';
+$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_SUMMARY_MESSAGE_NO_CHANGE'] = 'No changes required for %s existing outbound messages';
+$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_SUMMARY_MESSAGE_SUCCESSFUL_DELETE'] = 'Deleted %s outbound mailboxes';
+$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_SUMMARY_MESSAGE_SUCCESSFUL_EXECUTION'] = 'Outbound Group Email Account Deployer Job executed successfully in %s seconds';
+
+$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_SUMMARY_MESSAGE_TOO_MANY_RECORDS'] = 'Processed %s mailboxes. The remaining changes have been queued for execution in the background. Please wait few minutes while the changes are processed. You will be notified with a system Notification on the top right corner of the screen once completed.';
+$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_NOTIFICATION_SUBJECT'] = 'Outbound Group Email Account Deployer - Background Processing Completed';
+

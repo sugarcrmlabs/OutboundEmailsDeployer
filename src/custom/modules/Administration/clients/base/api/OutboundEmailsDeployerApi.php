@@ -126,7 +126,7 @@ class OutboundEmailsDeployerApi extends AdministrationApi
         $this->ensureAdminUser();
 
         $oed = new OutboundEmailsDeployer();
-        $output = $oed->deployCurrentMapping();
+        $output = $oed->deployCurrentMapping(true);
 
         return $output;
     }

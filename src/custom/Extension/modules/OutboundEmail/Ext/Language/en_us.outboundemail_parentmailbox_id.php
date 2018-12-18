@@ -1,2 +1,2 @@
 <?php
-$mod_strings['LBL_PARENTMAILBOX_ID'] = 'Parent Mailbox Id';
+$mod_strings['LBL_PARENTMAILBOX_ID_C'] = 'Parent Mailbox Id';
