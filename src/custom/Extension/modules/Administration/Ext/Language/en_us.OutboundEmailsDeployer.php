@@ -24,7 +24,7 @@ $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_NO_CHANGE'] = 'No changes req
 $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_MESSAGE_SUCCESSFUL_DELETE'] = 'Deleted outbound mailbox "%s" for user "%s"';
 
 $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_SUMMARY_MESSAGE_SUCCESSFUL_CHANGE'] = 'Changes completed successfully for %s outbound mailboxes';
-$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_SUMMARY_MESSAGE_NO_CHANGE'] = 'No changes required for %s existing outbound messages';
+$mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_SUMMARY_MESSAGE_NO_CHANGE'] = 'No changes required for %s existing outbound mailboxes';
 $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_SUMMARY_MESSAGE_SUCCESSFUL_DELETE'] = 'Deleted %s outbound mailboxes';
 $mod_strings['LBL_OUTBOUND_EMAILS_DEPLOYER_SUMMARY_MESSAGE_SUCCESSFUL_EXECUTION'] = 'Outbound Group Email Account Deployer Job executed successfully in %s seconds';
 

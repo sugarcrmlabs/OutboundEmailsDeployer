@@ -30,7 +30,7 @@ With this example scenario, the Outbound Group Email Account Deployer will use t
 ## Installation Steps
 1. Clone this repository and enter the cloned directory.
 2. Retrieve the Sugar Module Packager dependency by running: `composer install`.
-3. Generate the installable .zip Sugar module with: `./vendor/bin/package 2.0`.
+3. Generate the installable .zip Sugar module with: `./vendor/bin/package 2.1`.
 4. Navigate to Admin > Module Loader and install the generated Outbound Group Email Account Deployer package.
 5. Log out of the Sugar instance, clear your browser cache, and log back in to the Sugar instance once more.
 6. Navigate to the Admin panel and verify that you now see a new section called "Outbound Group Email Account Deployer".
